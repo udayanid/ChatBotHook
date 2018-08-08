@@ -1,5 +1,8 @@
 package it.sella.controllers;
 
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.http.ResponseEntity.BodyBuilder;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -19,7 +22,8 @@ public class ChatBotHookController {
 	}
 
 	@PostMapping("/message")
-	public String getMessage(@RequestBody String message) {
-		return message;
+	public ResponseEntity<?> getMessage(@RequestBody String message) {
+
+		return new ResponseEntity<>(HttpStatus.OK);
 	}
 }
