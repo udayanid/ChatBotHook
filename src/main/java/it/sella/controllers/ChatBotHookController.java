@@ -10,17 +10,8 @@ import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 public class ChatBotHookController {
+	
 	@GetMapping("/")
-	public String sayHello() {
-		return "Ready to hook";
-	}
-
-	@PostMapping("/query")
-	public String getQuery(@RequestParam("message") String message) {
-		return "Got the message " + message;
-	}
-
-	@GetMapping("verify")
 	public ResponseEntity<?> verify(@RequestParam("hub.challenge") String challenge,
 			@RequestParam("hub.verify_token") String token) {
 		if (token.equals("mycustomtoken23"))
@@ -29,9 +20,9 @@ public class ChatBotHookController {
 			return new ResponseEntity<>(HttpStatus.FORBIDDEN);
 	}
 
-	@PostMapping("/message")
+	@PostMapping("/")
 	public ResponseEntity<?> getMessage(@RequestBody String message) {
-
+		System.out.println(message);
 		return new ResponseEntity<>(HttpStatus.OK);
 	}
 }
