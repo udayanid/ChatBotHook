@@ -20,10 +20,13 @@ public class ChatBotHookController {
 		return "Got the message " + message;
 	}
 
-	@PostMapping("verify")
-	public ResponseEntity<?> verify(@RequestParam("hub_challenge") String challenge,
-			@RequestParam("hub_verify_token") String token) {
-		return new ResponseEntity<String>(challenge, HttpStatus.OK);
+	@GetMapping("verify")
+	public ResponseEntity<?> verify(@RequestParam("hub.challenge") String challenge,
+			@RequestParam("hub.verify_token") String token) {
+		if (token.equals("mycustomtoken23"))
+			return new ResponseEntity<String>(challenge, HttpStatus.OK);
+		else
+			return new ResponseEntity<>(HttpStatus.FORBIDDEN);
 	}
 
 	@PostMapping("/message")
