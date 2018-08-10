@@ -34,8 +34,9 @@ public class ChatBotHookController {
 	// }
 
 	@PostMapping("/webhook")
-	public ResponseEntity<?> getMessage(@RequestBody final String message) {
-		System.out.println(message);
+	public ResponseEntity<?> getMessage(@RequestBody final String payLoad,
+			@RequestHeader("X-Hub-Signature") final String signature) {
+		System.out.println(signature);
 		return new ResponseEntity<>(HttpStatus.OK);
 	}
 
