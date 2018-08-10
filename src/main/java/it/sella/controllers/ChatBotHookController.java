@@ -11,11 +11,12 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 public class ChatBotHookController {
-	
+
 	@GetMapping("/webhook")
 	public ResponseEntity<?> verify(@RequestParam("hub.challenge") String challenge,
 			@RequestParam("hub.verify_token") String token) {
@@ -25,13 +26,18 @@ public class ChatBotHookController {
 			return new ResponseEntity<>(HttpStatus.FORBIDDEN);
 	}
 
+	// @PostMapping("/webhook")
+	// public ResponseEntity<?> getMessage(HttpServletRequest
+	// request,HttpServletResponse response) {
+	// System.out.println(request.getContentType());
+	// return new ResponseEntity<>(HttpStatus.OK);
+	// }
+
 	@PostMapping("/webhook")
-	public ResponseEntity<?> getMessage(HttpServletRequest request,HttpServletResponse response) {
-		System.out.println(request.getContentType());
+	public ResponseEntity<?> getMessage(@RequestBody final String message) {
+		System.out.println(message);
 		return new ResponseEntity<>(HttpStatus.OK);
 	}
-	
-	
 
 	@GetMapping("/")
 	public ResponseEntity<?> sayConnected() {
