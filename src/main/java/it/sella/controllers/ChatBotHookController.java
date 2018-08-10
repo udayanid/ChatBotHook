@@ -1,16 +1,21 @@
 package it.sella.controllers;
 
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+
+import org.springframework.http.HttpRequest;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 public class ChatBotHookController {
-
+	
 	@GetMapping("/webhook")
 	public ResponseEntity<?> verify(@RequestParam("hub.challenge") String challenge,
 			@RequestParam("hub.verify_token") String token) {
@@ -21,10 +26,12 @@ public class ChatBotHookController {
 	}
 
 	@PostMapping("/webhook")
-	public ResponseEntity<?> getMessage(@RequestBody String message) {
-		System.out.println(message);
+	public ResponseEntity<?> getMessage(HttpServletRequest request,HttpServletResponse response) {
+		System.out.println(request.getContentType());
 		return new ResponseEntity<>(HttpStatus.OK);
 	}
+	
+	
 
 	@GetMapping("/")
 	public ResponseEntity<?> sayConnected() {
