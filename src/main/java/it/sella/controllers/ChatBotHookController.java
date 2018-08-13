@@ -60,8 +60,8 @@ public class ChatBotHookController {
 			this.messenger.onReceiveEvents(payLoad, of(signature), event -> {
 
 				if (event.isTextMessageEvent()) {
-					logger.info("PAYLOAD........."+payLoad+"---"+signature);
-					//processTextMessage(event);
+					logger.info("PAYLOAD........." + payLoad + "---" + signature);
+					processTextMessage(event);
 				}
 
 			});
@@ -80,10 +80,10 @@ public class ChatBotHookController {
 		logger.info("Message from Facebook:" + text);
 
 		String json = new Question(text).toJson();
+		logger.info("Message from Facebook:" + ((json == null) ? "It is NULL" : json));
 		HttpHeaders headers = new HttpHeaders();
 		headers.add("Authorization", "EndpointKey 1d5815e4-34dd-46be-8d3e-e8619b7de192");
 		headers.setContentType(MediaType.APPLICATION_JSON);
-		logger.info("Message from Facebook:" + json);
 
 		HttpEntity<String> entity = new HttpEntity<String>(json, headers);
 		String answer = restTemplate.postForObject(QnA_URL, entity, String.class);
