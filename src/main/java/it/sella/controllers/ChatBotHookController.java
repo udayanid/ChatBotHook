@@ -30,8 +30,11 @@ import com.github.messenger4j.send.MessagingType;
 import com.github.messenger4j.send.message.TextMessage;
 import com.github.messenger4j.webhook.Event;
 
+import it.sella.models.Question;
+
 @RestController
 public class ChatBotHookController {
+	private final String QnA_URL = "https://messengerqna.azurewebsites.net/qnamaker/knowledgebases/2130e964-ee28-4340-bef6-4af81d916292/generateAnswer";
 	private static final Logger logger = LoggerFactory.getLogger(ChatBotHookController.class);
 	final Messenger messenger;
 
@@ -73,15 +76,16 @@ public class ChatBotHookController {
 		final String senderId = event.senderId();
 		final String text = event.asTextMessageEvent().text();
 		RestTemplate restTemplate = new RestTemplate();
-		logger.info("Message from Facebook:"+text);
-		final String url = "https://messengerqna.azurewebsites.net/qnamaker/knowledgebases/2130e964-ee28-4340-bef6-4af81d916292/generateAnswer";
-		String json = "{\"question\":"+text+"}";
+		logger.info("Message from Facebook:" + text);
+
+		String json = new Question(text).toJson();
 		HttpHeaders headers = new HttpHeaders();
 		headers.add("Authorization", "EndpointKey 1d5815e4-34dd-46be-8d3e-e8619b7de192");
 		headers.setContentType(MediaType.APPLICATION_JSON);
+		logger.info("Message from Facebook:" + json);
 
-		HttpEntity<String> entity = new HttpEntity(json, headers);
-		String answer = restTemplate.postForObject(url, entity, String.class);
+		HttpEntity<String> entity = new HttpEntity<String>(json, headers);
+		String answer = restTemplate.postForObject(QnA_URL, entity, String.class);
 		final TextMessage textMessage = TextMessage.create(answer);
 		final MessagePayload messagePayload = MessagePayload.create(senderId, MessagingType.RESPONSE, textMessage);
 
