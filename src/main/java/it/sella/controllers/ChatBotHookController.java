@@ -60,7 +60,7 @@ public class ChatBotHookController {
 			this.messenger.onReceiveEvents(payLoad, of(signature), event -> {
 
 				if (event.isTextMessageEvent()) {
-					logger.info("PAYLOAD........."+payLoad);
+					logger.info("PAYLOAD........."+payLoad+"---"+signature);
 					//processTextMessage(event);
 				}
 
