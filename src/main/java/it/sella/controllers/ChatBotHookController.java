@@ -79,7 +79,7 @@ public class ChatBotHookController {
 		RestTemplate restTemplate = new RestTemplate();
 		logger.info("Message from Facebook:" + text);
 
-		String json = new Question(text).toJson();
+		String json = "{\"question\":\"" + text + "\"}";
 		logger.info("Message from Facebook:" + ((json == null) ? "It is NULL" : json));
 		HttpHeaders headers = new HttpHeaders();
 		headers.add("Authorization", "EndpointKey 1d5815e4-34dd-46be-8d3e-e8619b7de192");
