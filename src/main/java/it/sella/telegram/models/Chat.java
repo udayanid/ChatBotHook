@@ -1,6 +1,6 @@
 //-----------------------------------it.sella.models.telegram.Chat.java-----------------------------------
 
-package it.sella.models.telegram;
+package it.sella.telegram.models;
 
 import java.util.HashMap;
 import java.util.Map;
