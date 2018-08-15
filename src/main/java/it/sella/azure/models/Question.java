@@ -4,9 +4,17 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import static it.sella.util.AppUtil.getObjectMapper;
 public class Question {
-	String question;
+	private String question;
 
 	public Question(String question) {
+		this.question = question;
+	}
+
+	public String getQuestion() {
+		return question;
+	}
+
+	public void setQuestion(String question) {
 		this.question = question;
 	}
 

@@ -27,6 +27,10 @@ public class Telegram {
 		this.apiKey = apiKey;
 	}
 
+	private String getURL() {
+		return String.format(URL, apiKey);
+	}
+
 	public static Telegram getInstance(String apiKey) {
 		if (telegram == null) {
 			telegram = new Telegram(apiKey);
@@ -54,6 +58,6 @@ public class Telegram {
 		map.add("text", answer);
 		final HttpEntity<MultiValueMap<String, String>> httpEntity = new HttpEntity<MultiValueMap<String, String>>(map,
 				headers);
-		return restTemplate.postForEntity(URL, httpEntity, String.class);
+		return restTemplate.postForEntity(getURL(), httpEntity, String.class);
 	}
 }
