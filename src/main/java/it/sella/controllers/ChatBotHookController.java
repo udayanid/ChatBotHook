@@ -68,9 +68,9 @@ public class ChatBotHookController {
 		TelegramPayload telegramPayLoad;
 		try {
 			telegramPayLoad = getPayLoad(payLoad);
-			final String question = telegramPayLoad.getText();
+			final String question = telegramPayLoad.getMessage().getText();
 			final String answer = askAzureBot(question);
-			final String chatId = telegramPayLoad.getChat().get("id");
+			final Integer chatId = telegramPayLoad.getMessage().getChat().getId();
 			logger.info("ChatId:::"+chatId+",Question::::"+question);
 			return answerTextToTelegram(chatId, answer);
 		} catch (final JsonParseException | JsonMappingException e) {
@@ -91,13 +91,13 @@ public class ChatBotHookController {
 		return payload;
 	}
 
-	private ResponseEntity<?> answerTextToTelegram(String chatId, String answer) {
+	private ResponseEntity<?> answerTextToTelegram(final Integer chatId, final String answer) {
 		final String URL = "https://api.telegram.org/bot644221417:AAHMHTD5eMpT67dlcHAushnMHYNFieu7n1A/sendMessage";
 		final RestTemplate restTemplate = new RestTemplate();
 		final HttpHeaders headers = new HttpHeaders();
 		headers.setContentType(MediaType.APPLICATION_FORM_URLENCODED);
 		final MultiValueMap<String, String> map = new LinkedMultiValueMap<String, String>();
-		map.add("chat_id", chatId);
+		map.add("chat_id", chatId.toString());
 		map.add("text", answer);
 		final HttpEntity<MultiValueMap<String, String>> httpEntity = new HttpEntity<MultiValueMap<String, String>>(map,
 				headers);

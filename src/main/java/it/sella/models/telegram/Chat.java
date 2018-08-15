@@ -1,7 +1,10 @@
+//-----------------------------------it.sella.models.telegram.Chat.java-----------------------------------
+
 package it.sella.models.telegram;
 
 import java.util.HashMap;
 import java.util.Map;
+
 import com.fasterxml.jackson.annotation.JsonAnyGetter;
 import com.fasterxml.jackson.annotation.JsonAnySetter;
 import com.fasterxml.jackson.annotation.JsonIgnore;
@@ -10,34 +13,46 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 
 @JsonInclude(JsonInclude.Include.NON_NULL)
-@JsonPropertyOrder({ "update_id", "message" })
-public class TelegramPayload {
+@JsonPropertyOrder({ "id", "first_name", "type" })
+public class Chat {
 
-	@JsonProperty("update_id")
-	private Integer updateId;
-	@JsonProperty("message")
-	private Message message;
+	@JsonProperty("id")
+	private Integer id;
+	@JsonProperty("first_name")
+	private String firstName;
+	@JsonProperty("type")
+	private String type;
 	@JsonIgnore
 	private Map<String, Object> additionalProperties = new HashMap<String, Object>();
 
-	@JsonProperty("update_id")
-	public Integer getUpdateId() {
-		return updateId;
+	@JsonProperty("id")
+	public Integer getId() {
+		return id;
 	}
 
-	@JsonProperty("update_id")
-	public void setUpdateId(Integer updateId) {
-		this.updateId = updateId;
+	@JsonProperty("id")
+	public void setId(Integer id) {
+		this.id = id;
 	}
 
-	@JsonProperty("message")
-	public Message getMessage() {
-		return message;
+	@JsonProperty("first_name")
+	public String getFirstName() {
+		return firstName;
 	}
 
-	@JsonProperty("message")
-	public void setMessage(Message message) {
-		this.message = message;
+	@JsonProperty("first_name")
+	public void setFirstName(String firstName) {
+		this.firstName = firstName;
+	}
+
+	@JsonProperty("type")
+	public String getType() {
+		return type;
+	}
+
+	@JsonProperty("type")
+	public void setType(String type) {
+		this.type = type;
 	}
 
 	@JsonAnyGetter
