@@ -52,6 +52,11 @@ public class ChatBotHookController {
 			return new ResponseEntity<>(HttpStatus.FORBIDDEN);
 	}
 
+	@PostMapping("/telegramhook")
+	public ResponseEntity<?> getMessage(@RequestBody final String payLoad) {
+		logger.info("TELEGRAM>>>>"+payLoad);
+		return new ResponseEntity<String>("Success",HttpStatus.OK);
+	}
 	@PostMapping("/webhook")
 	public ResponseEntity<?> getMessage(@RequestBody final String payLoad,
 			@RequestHeader(SIGNATURE_HEADER_NAME) final String signature) {
@@ -79,7 +84,7 @@ public class ChatBotHookController {
 		RestTemplate restTemplate = new RestTemplate();
 		logger.info("Message from Facebook:" + text);
 
-		String json = "{\"question\":\"" + text + "\"}";
+		String json = "{\"question\":\"	" + text + "\"}";
 		logger.info("Message from Facebook:" + ((json == null) ? "It is NULL" : json));
 		HttpHeaders headers = new HttpHeaders();
 		headers.add("Authorization", "EndpointKey 1d5815e4-34dd-46be-8d3e-e8619b7de192");
