@@ -23,6 +23,7 @@ import com.github.messenger4j.exception.MessengerVerificationException;
 import com.github.messenger4j.send.MessagePayload;
 import com.github.messenger4j.send.MessagingType;
 import com.github.messenger4j.send.message.TextMessage;
+import com.github.messenger4j.webhook.Event;
 
 import it.sella.azure.AzureQnA;
 
@@ -71,7 +72,7 @@ public class FacebookController {
 						logger.info("PAYLOAD........." + payLoad + "---" + signature);
 						final String senderId = event.senderId();
 						final String text = event.asTextMessageEvent().text();
-						final String answer = azureQnA.ask(text).getAnswers().get(0).getAnswer();
+						final String answer = azureQnA.ask(text).getFirstAnswer();
 						final TextMessage textMessage = TextMessage.create(answer);
 						final MessagePayload messagePayload = MessagePayload.create(senderId, MessagingType.RESPONSE,
 								textMessage);
@@ -89,5 +90,6 @@ public class FacebookController {
 		logger.debug("Processed callback payload successfully");
 		return new ResponseEntity<>(HttpStatus.OK);
 	}
+	
 
 }

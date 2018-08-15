@@ -31,11 +31,11 @@ public class TelegramController {
 
 	@PostMapping("/telegramhook")
 	public ResponseEntity<?> getMessage(@RequestBody final String payload) {
-		logger.info("telegram message hook>>{0}", payload);
+		logger.info("telegram message hook>>{}", payload);
 
 		try {
 			final String question = telegram.updatePayload(payload).getText();
-			final String answer = azureQnA.ask(question).getAnswers().get(0).getAnswer();
+			final String answer = azureQnA.ask(question).getFirstAnswer();
 			return telegram.sendTelegram(answer);
 		} catch (final JsonParseException | JsonMappingException  e) {
 			// TODO: Remove System.out.println

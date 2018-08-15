@@ -30,6 +30,11 @@ public class QnAResponse {
 		return answers;
 	}
 
+	@JsonIgnore
+	public String getFirstAnswer() {
+		return answers.get(0).getAnswer();
+	}
+
 	@JsonProperty("answers")
 	public void setAnswers(List<Answer> answers) {
 		this.answers = answers;
@@ -44,9 +49,9 @@ public class QnAResponse {
 	public void setAdditionalProperty(String name, Object value) {
 		this.additionalProperties.put(name, value);
 	}
-	
+
 	public static QnAResponse fromJson(String json) throws JsonParseException, JsonMappingException, IOException {
-		return getObjectMapper().readValue(json,QnAResponse.class);
+		return getObjectMapper().readValue(json, QnAResponse.class);
 	}
 
 }
