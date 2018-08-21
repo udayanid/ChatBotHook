@@ -65,6 +65,7 @@ public class FacebookController {
 	public ResponseEntity<?> getMessage(@RequestBody final String payLoad,
 			@RequestHeader(SIGNATURE_HEADER_NAME) final String signature) {
 		logger.debug("Received Messenger Platform callback - payload: {} | signature: {}", payLoad, signature);
+		logger.info("Payload information:{}",payLoad);
 		try {
 			this.messenger.onReceiveEvents(payLoad, of(signature), event -> {
 				if (event.isTextMessageEvent()) {
