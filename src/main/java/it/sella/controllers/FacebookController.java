@@ -34,7 +34,6 @@ import com.github.messenger4j.send.message.template.ListTemplate;
 import com.github.messenger4j.send.message.template.button.Button;
 import com.github.messenger4j.send.message.template.button.UrlButton;
 import com.github.messenger4j.send.message.template.common.Element;
-import com.github.messenger4j.webhook.Event;
 
 import it.sella.azure.AzureQnA;
 
@@ -110,8 +109,8 @@ public class FacebookController {
 	        List<Button> riftButtons = new ArrayList<>();
 	        riftButtons.add(UrlButton.create("Open Web URL", new URL("https://www.oculus.com/en-us/rift/")));
 
-	        touchButtons.add(UrlButton.create("Open Web URL", new URL("https://www.oculus.com/en-us/touch/")));
 	        List<Button> touchButtons = new ArrayList<>();
+	        touchButtons.add(UrlButton.create("Open Web URL", new URL("https://www.oculus.com/en-us/touch/")));
 
 	        final List<Element> elements = new ArrayList<>();
 
