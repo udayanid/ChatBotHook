@@ -1,7 +1,13 @@
 package it.sella.controllers;
 
 import static com.github.messenger4j.Messenger.SIGNATURE_HEADER_NAME;
+import static java.util.Optional.empty;
 import static java.util.Optional.of;
+
+import java.net.MalformedURLException;
+import java.net.URL;
+import java.util.ArrayList;
+import java.util.List;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -22,7 +28,12 @@ import com.github.messenger4j.exception.MessengerIOException;
 import com.github.messenger4j.exception.MessengerVerificationException;
 import com.github.messenger4j.send.MessagePayload;
 import com.github.messenger4j.send.MessagingType;
+import com.github.messenger4j.send.message.TemplateMessage;
 import com.github.messenger4j.send.message.TextMessage;
+import com.github.messenger4j.send.message.template.ListTemplate;
+import com.github.messenger4j.send.message.template.button.Button;
+import com.github.messenger4j.send.message.template.button.UrlButton;
+import com.github.messenger4j.send.message.template.common.Element;
 import com.github.messenger4j.webhook.Event;
 
 import it.sella.azure.AzureQnA;
@@ -75,10 +86,12 @@ public class FacebookController {
 						final String text = event.asTextMessageEvent().text();
 						final String answer = azureQnA.ask(text).getFirstAnswer();
 						final TextMessage textMessage = TextMessage.create(answer);
+						
 						final MessagePayload messagePayload = MessagePayload.create(senderId, MessagingType.RESPONSE,
 								textMessage);
-						messenger.send(messagePayload);
-					} catch (MessengerApiException | MessengerIOException | JsonProcessingException e) {
+//						messenger.send(messagePayload);
+						sendListMessageMessage(senderId);
+					} catch (MessengerApiException | MessengerIOException | JsonProcessingException | MalformedURLException e) {
 						logger.warn("Processing of callback payload failed: {}", e.getMessage());
 					}
 				}
@@ -91,6 +104,23 @@ public class FacebookController {
 		logger.debug("Processed callback payload successfully");
 		return new ResponseEntity<>(HttpStatus.OK);
 	}
-	
+	 private void sendListMessageMessage(String recipientId) throws MessengerApiException, MessengerIOException, MalformedURLException {
+	        List<Button> riftButtons = new ArrayList<>();
+	        riftButtons.add(UrlButton.create("Open Web URL", new URL("https://www.oculus.com/en-us/rift/")));
+
+	        List<Button> touchButtons = new ArrayList<>();
+	        touchButtons.add(UrlButton.create("Open Web URL", new URL("https://www.oculus.com/en-us/touch/")));
+
+	        final List<Element> elements = new ArrayList<>();
+
+	        elements.add(
+	                Element.create("rift", of("Next-generation virtual reality"), of(new URL("https://www.oculus.com/en-us/rift/")), empty(), of(riftButtons)));
+	        elements.add(Element.create("touch", of("Your Hands, Now in VR"), of(new URL("https://www.oculus.com/en-us/touch/")), empty(), of(touchButtons)));
+
+	        final ListTemplate listTemplate = ListTemplate.create(elements);
+	        final TemplateMessage templateMessage = TemplateMessage.create(listTemplate);
+	        final MessagePayload messagePayload = MessagePayload.create(recipientId, MessagingType.RESPONSE, templateMessage);
+	        this.messenger.send(messagePayload);
+	    }
 
 }
