@@ -60,6 +60,8 @@ public class FacebookController {
 	@GetMapping("/webhook")
 	public ResponseEntity<?> verify(@RequestParam("hub.challenge") String challenge,
 			@RequestParam("hub.verify_token") String token) {
+		
+		logger.info("Challenge is:{} and token is{}",challenge,token);
 		if (token.equals("mycustomtoken23"))
 			return new ResponseEntity<String>(challenge, HttpStatus.OK);
 		else
@@ -108,8 +110,8 @@ public class FacebookController {
 	        List<Button> riftButtons = new ArrayList<>();
 	        riftButtons.add(UrlButton.create("Open Web URL", new URL("https://www.oculus.com/en-us/rift/")));
 
-	        List<Button> touchButtons = new ArrayList<>();
 	        touchButtons.add(UrlButton.create("Open Web URL", new URL("https://www.oculus.com/en-us/touch/")));
+	        List<Button> touchButtons = new ArrayList<>();
 
 	        final List<Element> elements = new ArrayList<>();
 
