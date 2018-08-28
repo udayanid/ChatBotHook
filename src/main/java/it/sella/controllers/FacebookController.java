@@ -86,7 +86,7 @@ public class FacebookController {
 						final String text = event.asTextMessageEvent().text();
 						final String answer = azureQnA.ask(text).getFirstAnswer();
 						final TextMessage textMessage = TextMessage.create(answer);
-						
+						logger.info("text {}",text);
 						final MessagePayload messagePayload = MessagePayload.create(senderId, MessagingType.RESPONSE,
 								textMessage);
 //						messenger.send(messagePayload);
