@@ -13,7 +13,7 @@ import it.sella.azure.models.Question;
 
 
 public class AzureQnA {
-	private static final String QnA_URL = "https://messengerqna.azurewebsites.net/qnamaker/knowledgebases/%s/generateAnswer";
+	private static final String QnA_URL = "https://imageqna.azurewebsites.net/qnamaker/knowledgebases/%s/generateAnswer";
 	
 	private String azureApiKey;
 	private static AzureQnA azureQnA;
@@ -38,7 +38,7 @@ public class AzureQnA {
 		final String json = question.toJson();
 		
 		final HttpHeaders headers = new HttpHeaders();
-		headers.add("Authorization", "EndpointKey 1d5815e4-34dd-46be-8d3e-e8619b7de192");
+		headers.add("Authorization", "EndpointKey 50415be2-0b91-4f4a-865b-9d2913307e4c");
 		headers.setContentType(MediaType.APPLICATION_JSON);
 		
 		final HttpEntity<String> entity = new HttpEntity<String>(json, headers);
