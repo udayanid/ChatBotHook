@@ -79,41 +79,80 @@ public class FacebookController {
 	public ResponseEntity<?> getMessage(@RequestBody final String payLoad,
 			@RequestHeader(SIGNATURE_HEADER_NAME) final String signature) {
 		logger.debug("Received Messenger Platform callback - payload: {} | signature: {}", payLoad, signature);
-		logger.info("Payload information:{}", payLoad);
-		try {
-			this.messenger.onReceiveEvents(payLoad, of(signature), event -> {
-				if (event.isTextMessageEvent()) {
-					try {
-						logger.info("PAYLOAD........." + payLoad + "---" + signature);
-						final String senderId = event.senderId();
-						final String text = event.asTextMessageEvent().text();
-						final String answer = azureQnA.ask(text).getFirstAnswer();
-						final TextMessage textMessage;
-						logger.info("text {}", text);
-						
-						if ("json".equals(text)) {
-							
-							String jsonResponse = "{\"attachment\": {\"type\": \"template\",\"payload\": {\"template_type\": \"list\",\"top_element_style\": \"compact\",\"elements\": [{\"title\": \"Classic T-Shirt Collection\", \"subtitle\": \"See all our colors\",\"image_url\": \"https://peterssendreceiveapp.ngrok.io/img/collection.png\", \"buttons\": [              {\"title\": \"View\",\"type\": \"web_url\",\"url\": \"https://peterssendreceiveapp.ngrok.io/collection\",\"messenger_extensions\": true,\"webview_height_ratio\": \"tall\",\"fallback_url\": \"https://peterssendreceiveapp.ngrok.io/\" }]},{\"title\": \"Classic White T-Shirt\",\"subtitle\": \"See all our colors\",\"default_action\": {\"type\": \"web_url\",        \"url\": \"https://peterssendreceiveapp.ngrok.io/view?item=100\",\"messenger_extensions\": false, \"webview_height_ratio\": \"tall\"}},{\"title\": \"Classic Blue T-Shirt\", \"image_url\": \"https://peterssendreceiveapp.ngrok.io/img/blue-t-shirt.png\",\"subtitle\": \"100% Cotton, 200% Comfortable\",\"default_action\": {\"type\": \"web_url\",\"url\": \"https://peterssendreceiveapp.ngrok.io/view?item=101\",\"messenger_extensions\": true,\"webview_height_ratio\": \"tall\",\"fallback_url\": \"https://peterssendreceiveapp.ngrok.io/\"},\"buttons\": [{\"title\": \"Shop Now\",\"type\": \"web_url\",\"url\": \"https://peterssendreceiveapp.ngrok.io/shop?item=101\",\"messenger_extensions\": true,\"webview_height_ratio\": \"tall\",\\n \"fallback_url\": \"https://peterssendreceiveapp.ngrok.io/\"  }]  } ],\"buttons\": [ {\"title\": \"View More\",\"type\": \"postback\",\"payload\": \"payload\" } ] }}}";
-							textMessage = TextMessage.create(jsonResponse);
-							logger.info("MESSAGE>>>>>>>>>>>>>>>" + jsonResponse);
-						} else {
-							textMessage = TextMessage.create(answer);
-						}
-						final MessagePayload messagePayload = MessagePayload.create(senderId, MessagingType.RESPONSE, textMessage);
-						messenger.send(messagePayload);
-						// sendListMessageMessage(senderId);
-					} catch (MessengerApiException | MessengerIOException | JsonProcessingException e) {
-						logger.warn("Processing of callback payload failed: {}", e.getMessage());
-					}
-				}
-			});
-		} catch (final MessengerVerificationException e) {
-			logger.warn("Processing of callback payload failed: {}", e.getMessage());
-			return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
-		}
+		
+		String jsonResponse = "{\r\n" + 
+				"  \"recipient\":{\r\n" + 
+				"    \"id\":\"2174277166143287\"\r\n" + 
+				"  }, \r\n" + 
+				"  \"message\": {\r\n" + 
+				"    \"attachment\": {\r\n" + 
+				"      \"type\": \"template\",\r\n" + 
+				"      \"payload\": {\r\n" + 
+				"        \"template_type\": \"list\",\r\n" + 
+				"        \"top_element_style\": \"compact\",\r\n" + 
+				"        \"elements\": [\r\n" + 
+				"          {\r\n" + 
+				"            \"title\": \"Classic T-Shirt Collection\",\r\n" + 
+				"            \"subtitle\": \"See all our colors\",\r\n" + 
+				"            \"image_url\": \"https://peterssendreceiveapp.ngrok.io/img/collection.png\",          \r\n" + 
+				"            \"buttons\": [\r\n" + 
+				"              {\r\n" + 
+				"                \"title\": \"View\",\r\n" + 
+				"                \"type\": \"web_url\",\r\n" + 
+				"                \"url\": \"https://peterssendreceiveapp.ngrok.io/collection\",\r\n" + 
+				"                \"messenger_extensions\": true,\r\n" + 
+				"                \"webview_height_ratio\": \"tall\",\r\n" + 
+				"                \"fallback_url\": \"https://peterssendreceiveapp.ngrok.io/\"            \r\n" + 
+				"              }\r\n" + 
+				"            ]\r\n" + 
+				"          },\r\n" + 
+				"          {\r\n" + 
+				"            \"title\": \"Classic White T-Shirt\",\r\n" + 
+				"            \"subtitle\": \"See all our colors\",\r\n" + 
+				"            \"default_action\": {\r\n" + 
+				"              \"type\": \"web_url\",\r\n" + 
+				"              \"url\": \"https://peterssendreceiveapp.ngrok.io/view?item=100\",\r\n" + 
+				"              \"messenger_extensions\": false,\r\n" + 
+				"              \"webview_height_ratio\": \"tall\"\r\n" + 
+				"            }\r\n" + 
+				"          },\r\n" + 
+				"          {\r\n" + 
+				"            \"title\": \"Classic Blue T-Shirt\",\r\n" + 
+				"            \"image_url\": \"https://peterssendreceiveapp.ngrok.io/img/blue-t-shirt.png\",\r\n" + 
+				"            \"subtitle\": \"100% Cotton, 200% Comfortable\",\r\n" + 
+				"            \"default_action\": {\r\n" + 
+				"              \"type\": \"web_url\",\r\n" + 
+				"              \"url\": \"https://peterssendreceiveapp.ngrok.io/view?item=101\",\r\n" + 
+				"              \"messenger_extensions\": true,\r\n" + 
+				"              \"webview_height_ratio\": \"tall\",\r\n" + 
+				"              \"fallback_url\": \"https://peterssendreceiveapp.ngrok.io/\"\r\n" + 
+				"            },\r\n" + 
+				"            \"buttons\": [\r\n" + 
+				"              {\r\n" + 
+				"                \"title\": \"Shop Now\",\r\n" + 
+				"                \"type\": \"web_url\",\r\n" + 
+				"                \"url\": \"https://peterssendreceiveapp.ngrok.io/shop?item=101\",\r\n" + 
+				"                \"messenger_extensions\": true,\r\n" + 
+				"                \"webview_height_ratio\": \"tall\",\r\n" + 
+				"                \"fallback_url\": \"https://peterssendreceiveapp.ngrok.io/\"            \r\n" + 
+				"              }\r\n" + 
+				"            ]        \r\n" + 
+				"          }\r\n" + 
+				"        ],\r\n" + 
+				"         \"buttons\": [\r\n" + 
+				"          {\r\n" + 
+				"            \"title\": \"View More\",\r\n" + 
+				"            \"type\": \"postback\",\r\n" + 
+				"            \"payload\": \"payload\"            \r\n" + 
+				"          }\r\n" + 
+				"        ]  \r\n" + 
+				"      }\r\n" + 
+				"    }\r\n" + 
+				"  }\r\n" + 
+				"}";
+		logger.debug("Payload information:{}", jsonResponse);
+		return new ResponseEntity<String>(jsonResponse, HttpStatus.OK);
 
-		logger.debug("Processed callback payload successfully");
-		return new ResponseEntity<>(HttpStatus.OK);
 	}
 
 	private void sendListMessageMessage(String recipientId)
