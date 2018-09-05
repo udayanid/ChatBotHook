@@ -34,6 +34,7 @@ import com.github.messenger4j.send.message.template.ListTemplate;
 import com.github.messenger4j.send.message.template.button.Button;
 import com.github.messenger4j.send.message.template.button.UrlButton;
 import com.github.messenger4j.send.message.template.common.Element;
+import com.google.gson.Gson;
 
 import it.sella.azure.AzureQnA;
 
@@ -74,85 +75,39 @@ public class FacebookController {
 	 * @param payLoad
 	 * @param signature
 	 * @return
-	 */ 
-	
+	 */
+
 	@PostMapping("/webhook")
 	public ResponseEntity<?> getMessage(@RequestBody final String payLoad,
 			@RequestHeader(SIGNATURE_HEADER_NAME) final String signature) {
 		logger.debug("Received Messenger Platform callback - payload: {} | signature: {}", payLoad, signature);
-		
-		String jsonResponse = "{\r\n" + 
-				"  \"recipient\":{\r\n" + 
-				"    \"id\":\"2174277166143287\"\r\n" + 
-				"  }, \r\n" + 
-				"  \"message\": {\r\n" + 
-				"    \"attachment\": {\r\n" + 
-				"      \"type\": \"template\",\r\n" + 
-				"      \"payload\": {\r\n" + 
-				"        \"template_type\": \"list\",\r\n" + 
-				"        \"top_element_style\": \"compact\",\r\n" + 
-				"        \"elements\": [\r\n" + 
-				"          {\r\n" + 
-				"            \"title\": \"Classic T-Shirt Collection\",\r\n" + 
-				"            \"subtitle\": \"See all our colors\",\r\n" + 
-				"            \"image_url\": \"https://peterssendreceiveapp.ngrok.io/img/collection.png\",          \r\n" + 
-				"            \"buttons\": [\r\n" + 
-				"              {\r\n" + 
-				"                \"title\": \"View\",\r\n" + 
-				"                \"type\": \"web_url\",\r\n" + 
-				"                \"url\": \"https://peterssendreceiveapp.ngrok.io/collection\",\r\n" + 
-				"                \"messenger_extensions\": true,\r\n" + 
-				"                \"webview_height_ratio\": \"tall\",\r\n" + 
-				"                \"fallback_url\": \"https://peterssendreceiveapp.ngrok.io/\"            \r\n" + 
-				"              }\r\n" + 
-				"            ]\r\n" + 
-				"          },\r\n" + 
-				"          {\r\n" + 
-				"            \"title\": \"Classic White T-Shirt\",\r\n" + 
-				"            \"subtitle\": \"See all our colors\",\r\n" + 
-				"            \"default_action\": {\r\n" + 
-				"              \"type\": \"web_url\",\r\n" + 
-				"              \"url\": \"https://peterssendreceiveapp.ngrok.io/view?item=100\",\r\n" + 
-				"              \"messenger_extensions\": false,\r\n" + 
-				"              \"webview_height_ratio\": \"tall\"\r\n" + 
-				"            }\r\n" + 
-				"          },\r\n" + 
-				"          {\r\n" + 
-				"            \"title\": \"Classic Blue T-Shirt\",\r\n" + 
-				"            \"image_url\": \"https://peterssendreceiveapp.ngrok.io/img/blue-t-shirt.png\",\r\n" + 
-				"            \"subtitle\": \"100% Cotton, 200% Comfortable\",\r\n" + 
-				"            \"default_action\": {\r\n" + 
-				"              \"type\": \"web_url\",\r\n" + 
-				"              \"url\": \"https://peterssendreceiveapp.ngrok.io/view?item=101\",\r\n" + 
-				"              \"messenger_extensions\": true,\r\n" + 
-				"              \"webview_height_ratio\": \"tall\",\r\n" + 
-				"              \"fallback_url\": \"https://peterssendreceiveapp.ngrok.io/\"\r\n" + 
-				"            },\r\n" + 
-				"            \"buttons\": [\r\n" + 
-				"              {\r\n" + 
-				"                \"title\": \"Shop Now\",\r\n" + 
-				"                \"type\": \"web_url\",\r\n" + 
-				"                \"url\": \"https://peterssendreceiveapp.ngrok.io/shop?item=101\",\r\n" + 
-				"                \"messenger_extensions\": true,\r\n" + 
-				"                \"webview_height_ratio\": \"tall\",\r\n" + 
-				"                \"fallback_url\": \"https://peterssendreceiveapp.ngrok.io/\"            \r\n" + 
-				"              }\r\n" + 
-				"            ]        \r\n" + 
-				"          }\r\n" + 
-				"        ],\r\n" + 
-				"         \"buttons\": [\r\n" + 
-				"          {\r\n" + 
-				"            \"title\": \"View More\",\r\n" + 
-				"            \"type\": \"postback\",\r\n" + 
-				"            \"payload\": \"payload\"            \r\n" + 
-				"          }\r\n" + 
-				"        ]  \r\n" + 
-				"      }\r\n" + 
-				"    }\r\n" + 
-				"  }\r\n" + 
-				"}";
-		logger.debug("Payload information:{}", jsonResponse);
-		return new ResponseEntity<String>(jsonResponse, HttpStatus.OK);
+
+		String jsonResponse = "{\r\n" + "    \"text\":\"hello, world!\"\r\n" + "  }";
+
+		try {
+			this.messenger.onReceiveEvents(payLoad, of(signature), event -> {
+				if (event.isTextMessageEvent()) {
+					try {
+						logger.info("PAYLOAD........." + payLoad + "---" + signature);
+						final String senderId = event.senderId();
+						Gson gson = new Gson();
+						TextMessage textMessage = gson.fromJson(jsonResponse, TextMessage.class);
+
+						final MessagePayload messagePayload = MessagePayload.create(senderId, MessagingType.RESPONSE,
+								textMessage);
+						messenger.send(messagePayload);
+					} catch (MessengerApiException | MessengerIOException e) {
+						logger.warn("Processing of callback payload failed: {}", e.getMessage());
+					}
+				}
+			});
+		} catch (final MessengerVerificationException e) {
+			logger.warn("Processing of callback payload failed: {}", e.getMessage());
+			return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
+		}
+
+		logger.debug("Processed callback payload successfully");
+		return new ResponseEntity<>(HttpStatus.OK);
 
 	}
 
