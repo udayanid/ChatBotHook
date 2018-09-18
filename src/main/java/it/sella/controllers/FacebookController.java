@@ -6,6 +6,7 @@ import static java.util.Optional.of;
 
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -34,6 +35,7 @@ import com.github.messenger4j.send.message.template.ListTemplate;
 import com.github.messenger4j.send.message.template.button.Button;
 import com.github.messenger4j.send.message.template.button.UrlButton;
 import com.github.messenger4j.send.message.template.common.Element;
+import com.github.messenger4j.webhook.event.TextMessageEvent;
 import com.google.gson.Gson;
 
 import it.sella.azure.AzureQnA;
@@ -88,13 +90,14 @@ public class FacebookController {
 			this.messenger.onReceiveEvents(payLoad, of(signature), event -> {
 				if (event.isTextMessageEvent()) {
 					try {
-						logger.info("PAYLOAD........." + payLoad + "---" + signature);
+						TextMessageEvent messageEvent = event.asTextMessageEvent();
+						final String messageId = messageEvent.messageId();
+						final String messageText = messageEvent.text();
 						final String senderId = event.senderId();
-						Gson gson = new Gson();
-						TextMessage textMessage = gson.fromJson(jsonResponse, TextMessage.class);
+						final Instant timestamp = event.timestamp();
 
 						final MessagePayload messagePayload = MessagePayload.create(senderId, MessagingType.RESPONSE,
-								textMessage);
+								messageText);
 						messenger.send(messagePayload);
 					} catch (MessengerApiException | MessengerIOException e) {
 						logger.warn("Processing of callback payload failed: {}", e.getMessage());
