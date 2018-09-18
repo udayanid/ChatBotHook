@@ -95,9 +95,9 @@ public class FacebookController {
 						final String messageText = messageEvent.text();
 						final String senderId = event.senderId();
 						final Instant timestamp = event.timestamp();
-
+						final TextMessage textMessage = TextMessage.create(messageText);
 						final MessagePayload messagePayload = MessagePayload.create(senderId, MessagingType.RESPONSE,
-								messageText);
+								textMessage);
 						messenger.send(messagePayload);
 					} catch (MessengerApiException | MessengerIOException e) {
 						logger.warn("Processing of callback payload failed: {}", e.getMessage());
