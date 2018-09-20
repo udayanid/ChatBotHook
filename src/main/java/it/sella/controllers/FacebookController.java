@@ -8,6 +8,7 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.time.Instant;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 import org.slf4j.Logger;
@@ -24,6 +25,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.github.messenger4j.Messenger;
+import com.github.messenger4j.common.WebviewHeightRatio;
 import com.github.messenger4j.exception.MessengerApiException;
 import com.github.messenger4j.exception.MessengerIOException;
 import com.github.messenger4j.exception.MessengerVerificationException;
@@ -31,8 +33,11 @@ import com.github.messenger4j.send.MessagePayload;
 import com.github.messenger4j.send.MessagingType;
 import com.github.messenger4j.send.message.TemplateMessage;
 import com.github.messenger4j.send.message.TextMessage;
+import com.github.messenger4j.send.message.template.ButtonTemplate;
 import com.github.messenger4j.send.message.template.ListTemplate;
 import com.github.messenger4j.send.message.template.button.Button;
+import com.github.messenger4j.send.message.template.button.CallButton;
+import com.github.messenger4j.send.message.template.button.PostbackButton;
 import com.github.messenger4j.send.message.template.button.UrlButton;
 import com.github.messenger4j.send.message.template.common.Element;
 import com.github.messenger4j.webhook.event.TextMessageEvent;
@@ -83,14 +88,13 @@ public class FacebookController {
 	public ResponseEntity<?> getMessage(@RequestBody final String payLoad,
 			@RequestHeader(SIGNATURE_HEADER_NAME) final String signature) {
 		logger.debug("Received Messenger Platform callback - payload: {} | signature: {}", payLoad, signature);
-
 		String jsonResponse = "{\r\n" + "    \"text\":\"hello, world!\"\r\n" + "  }";
-
 		try {
 			this.messenger.onReceiveEvents(payLoad, of(signature), event -> {
 				if (event.isTextMessageEvent()) {
 					try {
-						TextMessageEvent messageEvent = event.asTextMessageEvent();
+						final String senderId = event.senderId();
+						/*TextMessageEvent messageEvent = event.asTextMessageEvent();
 						final String messageId = messageEvent.messageId();
 						final String messageText = messageEvent.text();
 						final String senderId = event.senderId();
@@ -98,9 +102,12 @@ public class FacebookController {
 						final TextMessage textMessage = TextMessage.create(messageText);
 						final MessagePayload messagePayload = MessagePayload.create(senderId, MessagingType.RESPONSE,
 								textMessage);
-						messenger.send(messagePayload);
+						this.messenger.send(messagePayload);*/
+						sendButtonMessage(senderId);
 					} catch (MessengerApiException | MessengerIOException e) {
-						logger.warn("Processing of callback payload failed: {}", e.getMessage());
+						logger.info("Processing of callback payload failed: {}", e.getMessage());
+					} catch (MalformedURLException e) {						
+						e.printStackTrace();
 					}
 				}
 			});
@@ -114,7 +121,7 @@ public class FacebookController {
 
 	}
 
-	private void sendListMessageMessage(String recipientId)
+	/*private void sendListMessageMessage(String recipientId)
 			throws MessengerApiException, MessengerIOException, MalformedURLException {
 		List<Button> riftButtons = new ArrayList<>();
 		riftButtons.add(UrlButton.create("Open Web URL", new URL("https://www.oculus.com/en-us/rift/")));
@@ -135,5 +142,17 @@ public class FacebookController {
 				templateMessage);
 		this.messenger.send(messagePayload);
 	}
+*/
+	
+	private void sendButtonMessage(String recipientId) throws MessengerApiException, MessengerIOException, MalformedURLException {
+        final List<Button> buttons = Arrays.asList(
+                UrlButton.create("Open Web URL", new URL("https://www.oculus.com/en-us/rift/"), of(WebviewHeightRatio.COMPACT), of(false), empty(), empty()),
+                PostbackButton.create("Trigger Postback", "DEVELOPER_DEFINED_PAYLOAD"), CallButton.create("Call Phone Number", "+16505551234")
+        );
 
+        final ButtonTemplate buttonTemplate = ButtonTemplate.create("Tap a button", buttons);
+        final TemplateMessage templateMessage = TemplateMessage.create(buttonTemplate);
+        final MessagePayload messagePayload = MessagePayload.create(recipientId, MessagingType.RESPONSE, templateMessage);
+        this.messenger.send(messagePayload);
+    }
 }
