@@ -146,13 +146,14 @@ public class FacebookController {
 	
 	private void sendButtonMessage(String recipientId) throws MessengerApiException, MessengerIOException, MalformedURLException {
         final List<Button> buttons = Arrays.asList(
-                UrlButton.create("Open Web URL", new URL("https://www.oculus.com/en-us/rift/"), of(WebviewHeightRatio.COMPACT), of(false), empty(), empty()),
+                UrlButton.create("Open Web URL", new URL("https://spring.io/"), of(WebviewHeightRatio.COMPACT), of(false), empty(), empty()),
                 PostbackButton.create("Trigger Postback", "DEVELOPER_DEFINED_PAYLOAD"), CallButton.create("Call Phone Number", "+16505551234")
         );
 
         final ButtonTemplate buttonTemplate = ButtonTemplate.create("Tap a button", buttons);
         final TemplateMessage templateMessage = TemplateMessage.create(buttonTemplate);
         final MessagePayload messagePayload = MessagePayload.create(recipientId, MessagingType.RESPONSE, templateMessage);
+        logger.info("message PayLoad {}",messagePayload);
         this.messenger.send(messagePayload);
     }
 }
