@@ -144,9 +144,7 @@ public class FacebookController {
 				PostbackButton.create("Tax", "Tax"),
 				PostbackButton.create("Loans", "Loans"),
 				PostbackButton.create("Cards", "Cards"),
-				PostbackButton.create("Accounts & Deposits", "Account & Deposits"),
-				PostbackButton.create("Agri & Rural", "Agri & Rural"),
-				PostbackButton.create("ICICI Bank Referral Programme", "ICICI Bank Referral Programme"),
+				PostbackButton.create("Accounts & Deposits", "Account & Deposits"),				
 				PostbackButton.create("My Money", "My Money"),
 				CallButton.create("Call Phone Number", "+16505551234"));
 
