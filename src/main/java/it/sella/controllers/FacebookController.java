@@ -83,7 +83,6 @@ public class FacebookController {
 		logger.info("Received Messenger Platform callback - payload: {} | signature: {}", payLoad, signature);
 
 		try {
-			sendButtonMessage("125252");
 			this.messenger.onReceiveEvents(payLoad, of(signature), event -> {
 				if (event.isTextMessageEvent()) {
 					try {
