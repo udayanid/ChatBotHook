@@ -99,8 +99,8 @@ public class FacebookController {
 						final String messageText = messageEvent.text();
 						if (messageText.equalsIgnoreCase("Hi") || messageText.equalsIgnoreCase("Hello")
 								|| messageText.equalsIgnoreCase("Helo")) {
-							sendUserDetails(senderId);
-						} else if (messageText.contains("product") || messageText.contains("Product")) {
+							sendTextMessage(senderId, "Hi");
+						} else if (messageText.equalsIgnoreCase("product") || messageText.equalsIgnoreCase("Product")) {
 							sendButtonMessage(senderId);
 						} else if (messageText.equalsIgnoreCase("image")) {
 							sendImageMessage(senderId);
@@ -112,7 +112,9 @@ public class FacebookController {
 					}
 				} else if (event.isPostbackEvent()) {
 					PostbackEvent pbEvent = event.asPostbackEvent();
-					logger.info(pbEvent.payload().get());
+					String pbEventName=pbEvent.payload().get();							
+					logger.info("PBEvent INvoked ::: {}",pbEvent.payload().get());
+					sendTextMessage(senderId, String.format("You have invoked %s", pbEventName));
 				}
 
 			});
@@ -135,9 +137,17 @@ public class FacebookController {
 	private void sendButtonMessage(String recipientId)
 			throws MessengerApiException, MessengerIOException, MalformedURLException {
 		final List<Button> buttons = Arrays.asList(
-				UrlButton.create("Open Web URL", new URL("https://spring.io/"), of(WebviewHeightRatio.TALL), of(false),
+				UrlButton.create("Open Web URL", new URL("https://www.icicibank.com/Personal-Banking/products.page"), of(WebviewHeightRatio.COMPACT), of(false),
 						empty(), empty()),
-				PostbackButton.create("Trigger Postback", "DEVELOPER_DEFINED_PAYLOAD"),
+				PostbackButton.create("Investments", "Investments"),
+				PostbackButton.create("Insurance", "Insurance"),
+				PostbackButton.create("Tax", "Tax"),
+				PostbackButton.create("Loans", "Loans"),
+				PostbackButton.create("Cards", "Cards"),
+				PostbackButton.create("Accounts & Deposits", "Account & Deposits"),
+				PostbackButton.create("Agri & Rural", "Agri & Rural"),
+				PostbackButton.create("ICICI Bank Referral Programme", "ICICI Bank Referral Programme"),
+				PostbackButton.create("My Money", "My Money"),
 				CallButton.create("Call Phone Number", "+16505551234"));
 
 		final ButtonTemplate buttonTemplate = ButtonTemplate.create("Tap a button", buttons);
