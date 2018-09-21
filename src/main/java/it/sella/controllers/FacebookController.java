@@ -1,6 +1,7 @@
 package it.sella.controllers;
 
 import static com.github.messenger4j.Messenger.SIGNATURE_HEADER_NAME;
+import static com.github.messenger4j.send.message.richmedia.RichMediaAsset.Type.IMAGE;
 import static java.util.Optional.empty;
 import static java.util.Optional.of;
 
@@ -28,13 +29,20 @@ import com.github.messenger4j.exception.MessengerIOException;
 import com.github.messenger4j.exception.MessengerVerificationException;
 import com.github.messenger4j.send.MessagePayload;
 import com.github.messenger4j.send.MessagingType;
+import com.github.messenger4j.send.NotificationType;
+import com.github.messenger4j.send.message.RichMediaMessage;
 import com.github.messenger4j.send.message.TemplateMessage;
+import com.github.messenger4j.send.message.TextMessage;
+import com.github.messenger4j.send.message.richmedia.UrlRichMediaAsset;
 import com.github.messenger4j.send.message.template.ButtonTemplate;
 import com.github.messenger4j.send.message.template.button.Button;
 import com.github.messenger4j.send.message.template.button.CallButton;
 import com.github.messenger4j.send.message.template.button.PostbackButton;
 import com.github.messenger4j.send.message.template.button.UrlButton;
+import com.github.messenger4j.send.recipient.IdRecipient;
+import com.github.messenger4j.userprofile.UserProfile;
 import com.github.messenger4j.webhook.event.PostbackEvent;
+import com.github.messenger4j.webhook.event.TextMessageEvent;
 
 import it.sella.azure.AzureQnA;
 
@@ -84,27 +92,29 @@ public class FacebookController {
 
 		try {
 			this.messenger.onReceiveEvents(payLoad, of(signature), event -> {
+				final String senderId = event.senderId();
 				if (event.isTextMessageEvent()) {
 					try {
-						final String senderId = event.senderId();
-						/*TextMessageEvent messageEvent = event.asTextMessageEvent();
-						final String messageId = messageEvent.messageId();
+						TextMessageEvent messageEvent = event.asTextMessageEvent();
 						final String messageText = messageEvent.text();
-						final String senderId = event.senderId();
-						final Instant timestamp = event.timestamp();
-						final TextMessage textMessage = TextMessage.create(messageText);
-						final MessagePayload messagePayload = MessagePayload.create(senderId, MessagingType.RESPONSE,
-								textMessage);
-						this.messenger.send(messagePayload);*/
-						sendButtonMessage(senderId);
+						if (messageText.equalsIgnoreCase("Hi") || messageText.equalsIgnoreCase("Hello")
+								|| messageText.equalsIgnoreCase("Helo")) {
+							sendUserDetails(senderId);
+						} else if (messageText.contains("product") || messageText.contains("Product")) {
+							sendButtonMessage(senderId);
+						} else if (messageText.equalsIgnoreCase("image")) {
+							sendImageMessage(senderId);
+						} else if ("button".equalsIgnoreCase(messageText)) {
+							sendButtonMessage(senderId);
+						}
 					} catch (MessengerApiException | MessengerIOException | MalformedURLException e) {
 						logger.info("Processing of callback payload failed: {}", e.getMessage());
-					} 
-				}else if (event.isPostbackEvent()) {
-					PostbackEvent pbEvent=event.asPostbackEvent();
+					}
+				} else if (event.isPostbackEvent()) {
+					PostbackEvent pbEvent = event.asPostbackEvent();
 					logger.info(pbEvent.payload().get());
-                }
-			
+				}
+
 			});
 		} catch (final MessengerVerificationException e) {
 			logger.warn("Processing of callback payload failed: {}", e.getMessage());
@@ -116,39 +126,59 @@ public class FacebookController {
 
 	}
 
-	/*private void sendListMessageMessage(String recipientId)
+	private void sendUserDetails(String recipientId) throws MessengerApiException, MessengerIOException {
+		final UserProfile userProfile = this.messenger.queryUserProfile(recipientId);
+		sendTextMessage(recipientId, String.format("Hi %s %s", userProfile.firstName(), userProfile.lastName()));
+		logger.info("User Profile Picture: {}", userProfile.profilePicture());
+	}
+
+	private void sendButtonMessage(String recipientId)
 			throws MessengerApiException, MessengerIOException, MalformedURLException {
-		List<Button> riftButtons = new ArrayList<>();
-		riftButtons.add(UrlButton.create("Open Web URL", new URL("https://www.oculus.com/en-us/rift/")));
+		final List<Button> buttons = Arrays.asList(
+				UrlButton.create("Open Web URL", new URL("https://spring.io/"), of(WebviewHeightRatio.TALL), of(false),
+						empty(), empty()),
+				PostbackButton.create("Trigger Postback", "DEVELOPER_DEFINED_PAYLOAD"),
+				CallButton.create("Call Phone Number", "+16505551234"));
 
-		List<Button> touchButtons = new ArrayList<>();
-		touchButtons.add(UrlButton.create("Open Web URL", new URL("https://www.oculus.com/en-us/touch/")));
-
-		final List<Element> elements = new ArrayList<>();
-
-		elements.add(Element.create("rift", of("Next-generation virtual reality"),
-				of(new URL("https://www.oculus.com/en-us/rift/")), empty(), of(riftButtons)));
-		elements.add(Element.create("touch", of("Your Hands, Now in VR"),
-				of(new URL("https://www.oculus.com/en-us/touch/")), empty(), of(touchButtons)));
-
-		final ListTemplate listTemplate = ListTemplate.create(elements);
-		final TemplateMessage templateMessage = TemplateMessage.create(listTemplate);
+		final ButtonTemplate buttonTemplate = ButtonTemplate.create("Tap a button", buttons);
+		final TemplateMessage templateMessage = TemplateMessage.create(buttonTemplate);
 		final MessagePayload messagePayload = MessagePayload.create(recipientId, MessagingType.RESPONSE,
 				templateMessage);
+		logger.info("message PayLoad {}", messagePayload);
 		this.messenger.send(messagePayload);
 	}
-*/
-	
-	private void sendButtonMessage(String recipientId) throws MessengerApiException, MessengerIOException, MalformedURLException {
-        final List<Button> buttons = Arrays.asList(
-                UrlButton.create("Open Web URL", new URL("https://spring.io/"), of(WebviewHeightRatio.TALL), of(false), empty(), empty()),
-                PostbackButton.create("Trigger Postback", "DEVELOPER_DEFINED_PAYLOAD"), CallButton.create("Call Phone Number", "+16505551234")
-        );
 
-        final ButtonTemplate buttonTemplate = ButtonTemplate.create("Tap a button", buttons);
-        final TemplateMessage templateMessage = TemplateMessage.create(buttonTemplate);
-        final MessagePayload messagePayload = MessagePayload.create(recipientId, MessagingType.RESPONSE, templateMessage);
-        logger.info("message PayLoad {}",messagePayload);
-        this.messenger.send(messagePayload);
-    }
+	private void sendTextMessage(String recipientId, String text) {
+		try {
+			final IdRecipient recipient = IdRecipient.create(recipientId);
+			final NotificationType notificationType = NotificationType.REGULAR;
+			final String metadata = "DEVELOPER_DEFINED_METADATA";
+
+			final TextMessage textMessage = TextMessage.create(text, empty(), of(metadata));
+			final MessagePayload messagePayload = MessagePayload.create(recipient, MessagingType.RESPONSE, textMessage,
+					of(notificationType), empty());
+			this.messenger.send(messagePayload);
+		} catch (MessengerApiException | MessengerIOException e) {
+			handleSendException(e);
+		}
+	}
+
+	private void sendImageMessage(String recipientId)
+			throws MessengerApiException, MessengerIOException, MalformedURLException {
+		final UrlRichMediaAsset richMediaAsset = UrlRichMediaAsset.create(IMAGE,
+				new URL("https://chatbot-hook.herokuapp.com/img/image1.jpg"));
+		sendRichMediaMessage(recipientId, richMediaAsset);
+	}
+
+	private void sendRichMediaMessage(String recipientId, UrlRichMediaAsset richMediaAsset)
+			throws MessengerApiException, MessengerIOException {
+		final RichMediaMessage richMediaMessage = RichMediaMessage.create(richMediaAsset);
+		final MessagePayload messagePayload = MessagePayload.create(recipientId, MessagingType.RESPONSE,
+				richMediaMessage);
+		this.messenger.send(messagePayload);
+	}
+
+	private void handleSendException(Exception e) {
+		logger.error("Message could not be sent. An unexpected error occurred.", e);
+	}
 }
