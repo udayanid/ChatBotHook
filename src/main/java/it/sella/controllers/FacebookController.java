@@ -6,8 +6,6 @@ import static java.util.Optional.of;
 
 import java.net.MalformedURLException;
 import java.net.URL;
-import java.time.Instant;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
@@ -23,7 +21,6 @@ import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.github.messenger4j.Messenger;
 import com.github.messenger4j.common.WebviewHeightRatio;
 import com.github.messenger4j.exception.MessengerApiException;
@@ -32,18 +29,12 @@ import com.github.messenger4j.exception.MessengerVerificationException;
 import com.github.messenger4j.send.MessagePayload;
 import com.github.messenger4j.send.MessagingType;
 import com.github.messenger4j.send.message.TemplateMessage;
-import com.github.messenger4j.send.message.TextMessage;
 import com.github.messenger4j.send.message.template.ButtonTemplate;
-import com.github.messenger4j.send.message.template.ListTemplate;
 import com.github.messenger4j.send.message.template.button.Button;
 import com.github.messenger4j.send.message.template.button.CallButton;
 import com.github.messenger4j.send.message.template.button.PostbackButton;
 import com.github.messenger4j.send.message.template.button.UrlButton;
-import com.github.messenger4j.send.message.template.common.Element;
-import com.github.messenger4j.webhook.Event;
 import com.github.messenger4j.webhook.event.PostbackEvent;
-import com.github.messenger4j.webhook.event.TextMessageEvent;
-import com.google.gson.Gson;
 
 import it.sella.azure.AzureQnA;
 
@@ -90,7 +81,6 @@ public class FacebookController {
 	public ResponseEntity<?> getMessage(@RequestBody final String payLoad,
 			@RequestHeader(SIGNATURE_HEADER_NAME) final String signature) {
 		logger.info("Received Messenger Platform callback - payload: {} | signature: {}", payLoad, signature);
-		String jsonResponse = "{\r\n" + "    \"text\":\"hello, world!\"\r\n" + "  }";
 
 		try {
 			sendButtonMessage("125252");
