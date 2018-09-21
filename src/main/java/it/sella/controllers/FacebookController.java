@@ -40,6 +40,8 @@ import com.github.messenger4j.send.message.template.button.CallButton;
 import com.github.messenger4j.send.message.template.button.PostbackButton;
 import com.github.messenger4j.send.message.template.button.UrlButton;
 import com.github.messenger4j.send.message.template.common.Element;
+import com.github.messenger4j.webhook.Event;
+import com.github.messenger4j.webhook.event.PostbackEvent;
 import com.github.messenger4j.webhook.event.TextMessageEvent;
 import com.google.gson.Gson;
 
@@ -87,9 +89,11 @@ public class FacebookController {
 	@PostMapping("/webhook")
 	public ResponseEntity<?> getMessage(@RequestBody final String payLoad,
 			@RequestHeader(SIGNATURE_HEADER_NAME) final String signature) {
-		logger.debug("Received Messenger Platform callback - payload: {} | signature: {}", payLoad, signature);
+		logger.info("Received Messenger Platform callback - payload: {} | signature: {}", payLoad, signature);
 		String jsonResponse = "{\r\n" + "    \"text\":\"hello, world!\"\r\n" + "  }";
+
 		try {
+			sendButtonMessage("125252");
 			this.messenger.onReceiveEvents(payLoad, of(signature), event -> {
 				if (event.isTextMessageEvent()) {
 					try {
@@ -104,14 +108,16 @@ public class FacebookController {
 								textMessage);
 						this.messenger.send(messagePayload);*/
 						sendButtonMessage(senderId);
-					} catch (MessengerApiException | MessengerIOException e) {
+					} catch (MessengerApiException | MessengerIOException | MalformedURLException e) {
 						logger.info("Processing of callback payload failed: {}", e.getMessage());
-					} catch (MalformedURLException e) {						
-						e.printStackTrace();
-					}
-				}
+					} 
+				}else if (event.isPostbackEvent()) {
+					PostbackEvent pbEvent=event.asPostbackEvent();
+					logger.info(pbEvent.payload().get());
+                }
+			
 			});
-		} catch (final MessengerVerificationException e) {
+		} catch (final MessengerVerificationException | MalformedURLException | MessengerApiException | MessengerIOException e) {
 			logger.warn("Processing of callback payload failed: {}", e.getMessage());
 			return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
 		}
@@ -146,7 +152,7 @@ public class FacebookController {
 	
 	private void sendButtonMessage(String recipientId) throws MessengerApiException, MessengerIOException, MalformedURLException {
         final List<Button> buttons = Arrays.asList(
-                UrlButton.create("Open Web URL", new URL("https://spring.io/"), of(WebviewHeightRatio.COMPACT), of(false), empty(), empty()),
+                UrlButton.create("Open Web URL", new URL("https://spring.io/"), of(WebviewHeightRatio.TALL), of(false), empty(), empty()),
                 PostbackButton.create("Trigger Postback", "DEVELOPER_DEFINED_PAYLOAD"), CallButton.create("Call Phone Number", "+16505551234")
         );
 
