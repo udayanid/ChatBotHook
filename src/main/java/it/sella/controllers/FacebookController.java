@@ -106,7 +106,7 @@ public class FacebookController {
                 }
 			
 			});
-		} catch (final MessengerVerificationException | MalformedURLException | MessengerApiException | MessengerIOException e) {
+		} catch (final MessengerVerificationException e) {
 			logger.warn("Processing of callback payload failed: {}", e.getMessage());
 			return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
 		}
