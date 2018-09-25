@@ -136,16 +136,16 @@ public class FacebookController {
 
 	private void sendButtonMessage(String recipientId)
 			throws MessengerApiException, MessengerIOException, MalformedURLException {
-		final List<Button> buttons = Arrays.asList(
+		/*final List<Button> buttons = Arrays.asList(
 				UrlButton.create("Open Web URL", new URL("https://www.icicibank.com/Personal-Banking/products.page"), of(WebviewHeightRatio.COMPACT), of(false),
 						empty(), empty()),
 				PostbackButton.create("Investments", "Investments"),
-				PostbackButton.create("Insurance", "Insurance"),
+			PostbackButton.create("Insurance", "Insurance"),
 				PostbackButton.create("Tax", "Tax"),
-				/*PostbackButton.create("Loans", "Loans"),
+				PostbackButton.create("Loans", "Loans"),
 				PostbackButton.create("Cards", "Cards"),
 				PostbackButton.create("Accounts & Deposits", "Account & Deposits"),				
-				PostbackButton.create("My Money", "My Money"),*/
+				PostbackButton.create("My Money", "My Money"),
 				CallButton.create("Call Phone Number", "+16505551234"));
 
 		final ButtonTemplate buttonTemplate = ButtonTemplate.create("Tap a button", buttons);
@@ -154,6 +154,17 @@ public class FacebookController {
 				templateMessage);
 		logger.info("message PayLoad {}", messagePayload);
 		this.messenger.send(messagePayload);
+		*/
+		
+		final List<Button> buttons = Arrays.asList(
+                UrlButton.create("Open Web URL", new URL("https://www.oculus.com/en-us/rift/"), of(WebviewHeightRatio.COMPACT), of(false), empty(), empty()),
+                PostbackButton.create("Trigger Postback", "DEVELOPER_DEFINED_PAYLOAD"), CallButton.create("Call Phone Number", "+16505551234")
+        );
+
+        final ButtonTemplate buttonTemplate = ButtonTemplate.create("Tap a button", buttons);
+        final TemplateMessage templateMessage = TemplateMessage.create(buttonTemplate);
+        final MessagePayload messagePayload = MessagePayload.create(recipientId, MessagingType.RESPONSE, templateMessage);
+        this.messenger.send(messagePayload);
 	}
 
 	private void sendTextMessage(String recipientId, String text) {
