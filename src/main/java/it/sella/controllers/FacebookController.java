@@ -142,10 +142,10 @@ public class FacebookController {
 				PostbackButton.create("Investments", "Investments"),
 				PostbackButton.create("Insurance", "Insurance"),
 				PostbackButton.create("Tax", "Tax"),
-				PostbackButton.create("Loans", "Loans"),
+				/*PostbackButton.create("Loans", "Loans"),
 				PostbackButton.create("Cards", "Cards"),
 				PostbackButton.create("Accounts & Deposits", "Account & Deposits"),				
-				PostbackButton.create("My Money", "My Money"),
+				PostbackButton.create("My Money", "My Money"),*/
 				CallButton.create("Call Phone Number", "+16505551234"));
 
 		final ButtonTemplate buttonTemplate = ButtonTemplate.create("Tap a button", buttons);
